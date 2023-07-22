@@ -3,7 +3,7 @@ import speech_recognition as sr
 import pyttsx3
 import openai
 import webbrowser
-openai.api_key = "YOUR API KEY"
+openai.api_key = "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"
 
 
 engine=pyttsx3.init('sapi5')
@@ -54,9 +54,23 @@ def generate_text(prompt):
     response = openai.Completion.create(
         engine="text-davinci-003",
         prompt=prompt,
-        max_tokens=2000,
+        max_tokens=1000,
     )
     answer = response.choices[0]['text']
+    return answer
+chatStr=""
+def AI(prompt):
+    global chatStr
+    chatStr += prompt
+    response = openai.Completion.create(
+        engine="text-davinci-003",
+        prompt=chatStr,
+        max_tokens=1000,
+    )
+    chatStr += f"{response['choices'][0]['text']}\n"
+    answer = response.choices[0]['text']
+    speak(answer)
+    print(answer)
     return answer
 
 
@@ -85,12 +99,16 @@ if __name__=='__main__':
         elif 'on google' in work:
             speak("Sure sir..,here you go")
             work=work.replace("on google","")
+            work=work.replace("search","")
             webbrowser.open_new_tab(f'https://www.google.com/search?q={work}')
 
+        elif 'write' in work:
+            written=generate_text(work)
+            with open(f"{work[14:30]}",'w') as f:
+                f.write(written)
+                speak("Done sir")
         else:
-         answer = generate_text(work)
-         speak(answer)
-         print(answer)
+         AI(work)
         
         # else:
         #     speak("Sorry, can you say that again?")
